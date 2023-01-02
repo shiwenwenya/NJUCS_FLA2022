@@ -520,18 +520,33 @@ void print_instant_description()
         cout << "Tape" << i << "\t:";
         for (int j = left_index[i]; j < right_index[i]; j++)
         {
+            int cnt = 1; // index位数，用于对齐
+            int num = j;
+            while (num /= 10)
+            {
+                cnt++;
+            }
             cout << " " << tape[i][j];
+            print_spaces(cnt - 1);
         }
         cout << endl;
         cout << "Head" << i << "\t:";
         for (int j = left_index[i]; j < right_index[i]; j++)
         {
+            int cnt = 1; // index位数，用于对齐
+            int num = j;
+            while (num /= 10)
+            {
+                cnt++;
+            }
             if (j == head_index[i])
             {
                 cout << " ^" << endl;
+                print_spaces(cnt - 1);
                 break;
             }
             print_spaces(2);
+            print_spaces(cnt - 1);
         }
     }
     cout << "---------------------------------------------" << endl;
