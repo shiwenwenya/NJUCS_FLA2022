@@ -366,8 +366,10 @@ void handle_line_comment(string &input)
     }
     if (input[i] == ';')
     {
-        input.erase(i - 1, input.size() - i + 1);
+        input.erase(i, input.size() - i);
     }
+    while (input[input.size() - 1] == ' ')
+        input.erase(input.size() - 1, 1);
 }
 void simulator(string input)
 {
@@ -445,6 +447,10 @@ void simulator(string input)
                     {
                         right_index[i]--;
                     }
+                    else
+                    {
+                        break;
+                    }
                 } // 处理最右非空格符号索引
             }
             else if (cur_trasition.direction_set[i] == 'r')
@@ -460,6 +466,10 @@ void simulator(string input)
                     if (tape[i][j] == '_')
                     {
                         left_index[i]++;
+                    }
+                    else
+                    {
+                        break;
                     }
                 } // 处理最左非空格符号索引
             }
@@ -507,17 +517,17 @@ void print_spaces(int count)
 }
 void print_instant_description()
 {
-    cout << "Step\t: " << step << endl;
-    cout << "State\t: " << state << endl;
+    cout << "Step   : " << step << endl;
+    cout << "State  : " << state << endl;
     for (int i = 0; i < N; i++)
     {
-        cout << "Index" << i << "\t:";
+        cout << "Index" << i << " :";
         for (int j = left_index[i]; j < right_index[i]; j++)
         {
             cout << " " << abs(j);
         }
         cout << endl;
-        cout << "Tape" << i << "\t:";
+        cout << "Tape" << i << "  :";
         for (int j = left_index[i]; j < right_index[i]; j++)
         {
             int cnt = 1; // index位数，用于对齐
@@ -530,7 +540,7 @@ void print_instant_description()
             print_spaces(cnt - 1);
         }
         cout << endl;
-        cout << "Head" << i << "\t:";
+        cout << "Head" << i << "  :";
         for (int j = left_index[i]; j < right_index[i]; j++)
         {
             int cnt = 1; // index位数，用于对齐
