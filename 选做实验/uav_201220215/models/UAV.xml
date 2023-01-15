@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<NewComp version="0.1">
+    <component id="UAV">
+        <param name="inp11" type="variable" dynamics="input" />
+        <param name="inp12" type="variable" dynamics="input" />
+        <param name="inp13" type="variable" dynamics="input" />
+        <param name="inp21" type="variable" dynamics="input" />
+        <param name="inp22" type="variable" dynamics="input" />
+        <param name="inp23" type="variable" dynamics="input" />
+        <param name="inp31" type="variable" dynamics="input" />
+        <param name="inp32" type="variable" dynamics="input" />
+        <param name="inp33" type="variable" dynamics="input" />
+        <param name="inp41" type="variable" dynamics="input" />
+        <param name="inp42" type="variable" dynamics="input" />
+        <param name="inp43" type="variable" dynamics="input" />
+        <param name="vx" type="variable" dynamics="output" />
+        <param name="vx_aim" type="variable" dynamics="local" />
+        <param name="vy" type="variable" dynamics="output" />
+        <param name="vy_aim" type="variable" dynamics="local" />
+        <param name="vz" type="variable" dynamics="output" />
+        <param name="vz_aim" type="variable" dynamics="local" />
+        <param name="x" type="variable" dynamics="output" />
+        <param name="x_aim" type="variable" dynamics="local" />
+        <param name="y" type="variable" dynamics="output" />
+        <param name="y_aim" type="variable" dynamics="local" />
+        <param name="z" type="variable" dynamics="output" />
+        <param name="z_aim" type="variable" dynamics="local" />
+        <location id="1" name="Position Control">
+            <invariant>pow(x-x_aim) + pow(y-y_aim) + pow(z-z_aim) &gt;0</invariant>
+            <flow>x&apos;= (x_aim-x)/2</flow>
+            <flow>y&apos;= (y_aim-y)/2</flow>
+            <flow>z&apos;= (z_aim-z)/2</flow>
+        </location>
+        <location id="2" name="Velocity Control">
+            <invariant>pow(vx-vx_aim) + pow(vy-vy_aim) + pow(vz-vz_aim) &gt;0</invariant>
+            <flow>x&apos;= vx</flow>
+            <flow>y&apos;= vy</flow>
+            <flow>z&apos;= vz</flow>
+            <flow>vx&apos;= (vx_aim-vx)/3</flow>
+            <flow>vy&apos;= (vy_aim-vy)/3</flow>
+            <flow>vz&apos;= (vz_aim-vz)/3</flow>
+        </location>
+        <location id="3" name="Cruise">
+            <flow>x&apos;=vx &amp; y&apos;=vy &amp; z&apos;=vz</flow>
+        </location>
+        <transition source="1" target="3" comm="false">
+            <label>Pos2Cruise</label>
+            <guard>abs(x-x_aim)&lt;=0.05</guard>
+            <guard>abs(y-y_aim)&lt;=0.05</guard>
+            <guard>abs(z-z_aim)&lt;=0.05</guard>
+            <reset>vx := 0</reset>
+            <reset>vy := 0</reset>
+            <reset>vz := 0</reset>
+        </transition>
+        <transition source="2" target="3" comm="false">
+            <label>Vel2Cruise</label>
+            <guard>abs(vx-vx_aim)&lt;=0.05</guard>
+            <guard>abs(vy-vy_aim)&lt;=0.05</guard>
+            <guard>abs(vz-vz_aim)&lt;=0.05</guard>
+        </transition>
+        <transition source="3" target="3" comm="true">
+            <label>comm</label>
+        </transition>
+        <transition source="3" target="1" comm="true">
+            <label>commP</label>
+        </transition>
+        <transition source="3" target="2" comm="true">
+            <label>commV</label>
+        </transition>
+    </component>
+</NewComp>

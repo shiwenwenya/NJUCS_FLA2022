@@ -1,0 +1,1187 @@
+<?xml version="1.0" encoding="iso-8859-1"?>
+<sspaceex xmlns="http://www-verimag.imag.fr/xml-namespaces/sspaceex" version="0.1">
+  <component id="UAVtemplate">
+    <param name="x" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="y" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="z" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vx" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vy" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vz" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="x_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="y_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="z_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="vx_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="vy_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="vz_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="commPos" type="label" local="false" />
+    <param name="commVel" type="label" local="false" />
+    <param name="comm" type="label" local="false" />
+    <param name="Pos2Cruise" type="label" local="true" />
+    <param name="Vel2Cruise" type="label" local="true" />
+    <location id="0" name="Cruise" x="759.0" y="221.0" width="266.0" height="62.0">
+      <flow>x'==vx &amp; y'==vy &amp; z'==vz</flow>
+    </location>
+    <location id="1" name="PositionControl" x="492.0" y="503.0" width="362.0" height="156.0">
+      <invariant>pow(x_aim-x)+ pow(y_aim-y)+ pow(z_aim-z)&gt;0</invariant>
+      <flow>x'== (x_aim-x)/2 &amp; y'== (y_aim-y)/2 &amp; z'== (z_aim-z)/2</flow>
+    </location>
+    <location id="2" name="VelocityControl" x="1069.0" y="501.0" width="418.0" height="178.0">
+      <invariant>pow(vx_aim-vx)+ pow(vy_aim-vy)+ pow(vz_aim-vz)&gt;0</invariant>
+      <flow>x'== vx &amp; y'== vy &amp; z'== vz &amp; vx'== (vx_aim-vx)/3 &amp; vy'== (vy_aim-vy)/3 &amp; vz'== (vz_aim-vz)/3</flow>
+    </location>
+    <transition source="1" target="0">
+      <label>Pos2Cruise</label>
+      <guard>-0.05&lt;=(x-x_aim)&lt;= 0.05 &amp; -0.05&lt;= (y-y_aim) &lt;= 0.05 &amp; - 0.05&lt;=(z-z_aim) &lt;=0.05</guard>
+      <assignment>vx'==0 &amp; vy'==0 &amp; vz'==0</assignment>
+      <labelposition x="-520.0" y="-77.0" width="586.0" height="80.0" />
+    </transition>
+    <transition source="2" target="0">
+      <label>Vel2Cruise</label>
+      <labelposition x="25.0" y="-59.0" width="486.0" height="94.0" />
+      <middlepoint x="896.0" y="345.0" />
+      <guard>-0.05&lt;=(vx-vx_aim)&lt;= 0.05 &amp; -0.05&lt;= (vy-vy_aim) &lt;= 0.05 &amp; - 0.05&lt;=(vz-vz_aim) &lt;=0.05</guard>
+    </transition>
+    <transition source="0" target="1" bezier="true">
+      <label>commPos</label>
+      <labelposition x="-73.0" y="32.0" width="136.0" height="50.0" />
+      <middlepoint x="682.5" y="357.0" />
+    </transition>
+    <transition source="0" target="2" bezier="true">
+      <label>commVel</label>
+      <labelposition x="-47.0" y="25.0" width="98.0" height="50.0" />
+      <middlepoint x="848.0" y="359.0" />
+    </transition>
+    <transition source="0" target="0">
+      <label>comm</label>
+      <labelposition x="-72.0" y="-30.0" width="158.0" height="50.0" />
+    </transition>
+  </component>
+  <component id="UAVSpeedCtrltemplate">
+    <param name="x" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="y" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="z" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="vx" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vy" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vz" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vx_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="vy_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="vz_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="commVel" type="label" local="false" />
+    <param name="Vel2Cruise" type="label" local="true" />
+    <param name="finish" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <location id="0" name="Cruise" x="525.0" y="225.0" width="266.0" height="62.0">
+      <flow>x'==vx &amp; y'==vy &amp; z'==vz</flow>
+    </location>
+    <location id="2" name="VelocityControl" x="538.0" y="513.0" width="418.0" height="178.0">
+      <invariant>pow(vx_aim-vx)+ pow(vy_aim-vy)+ pow(vz_aim-vz)&gt;0</invariant>
+      <flow>x'== vx &amp; y'== vy &amp; z'== vz &amp; vx'== (vx_aim-vx)/3 &amp; vy'== (vy_aim-vy)/3 &amp; vz'== (vz_aim-vz)/3</flow>
+    </location>
+    <transition source="2" target="0">
+      <label>Vel2Cruise</label>
+      <labelposition x="25.0" y="-59.0" width="486.0" height="94.0" />
+      <middlepoint x="614.0" y="349.0" />
+      <guard>-0.05&lt;=(vx-vx_aim)&lt;= 0.05 &amp; -0.05&lt;= (vy-vy_aim) &lt;= 0.05 &amp; - 0.05&lt;=(vz-vz_aim) &lt;=0.05</guard>
+      <assignment>finish'==1</assignment>
+    </transition>
+    <transition source="0" target="2" bezier="true">
+      <label>commVel</label>
+      <assignment>finish'==0</assignment>
+      <labelposition x="-107.0" y="-24.0" width="98.0" height="50.0" />
+      <middlepoint x="442.0" y="364.0" />
+    </transition>
+  </component>
+  <component id="UAVSpeedBroadcasttemplate">
+    <param name="x" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="y" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="z" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="vx" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vy" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vz" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="comm" type="label" local="false" />
+    <location id="0" name="Cruise" x="600.0" y="373.0" width="266.0" height="62.0">
+      <flow>x'==vx &amp; y'==vy &amp; z'==vz</flow>
+    </location>
+    <transition source="0" target="0">
+      <label>comm</label>
+      <labelposition x="-123.0" y="-46.0" width="248.0" height="70.0" />
+    </transition>
+  </component>
+  <component id="UAVPosCtrltemplate">
+    <param name="x" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="y" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="z" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vx" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="vy" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="vz" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="x_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="y_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="z_aim" type="real" dynamics="any" local="false" d1="1" d2="1" controlled="false" />
+    <param name="commPos" type="label" local="false" />
+    <param name="Pos2Cruise" type="label" local="true" />
+    <param name="finish" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <location id="0" name="Cruise" x="467.0" y="224.0" width="266.0" height="62.0">
+      <invariant>-100&lt;=vx&lt;=100 &amp; -100&lt;=vy&lt;=100 &amp; -100&lt;=vz&lt;=100</invariant>
+      <flow>x'==vx &amp; y'==vy &amp; z'==vz</flow>
+    </location>
+    <location id="1" name="PositionControl" x="465.0" y="500.0" width="362.0" height="156.0">
+      <invariant>pow(x_aim-x)+ pow(y_aim-y)+ pow(z_aim-z)&gt;0</invariant>
+      <flow>x'== (x_aim-x)/2 &amp; y'== (y_aim-y)/2 &amp; z'== (z_aim-z)/2</flow>
+    </location>
+    <transition source="1" target="0" bezier="true">
+      <label>Pos2Cruise</label>
+      <guard>-0.05&lt;=(x-x_aim)&lt;= 0.05 &amp; -0.05&lt;= (y-y_aim) &lt;= 0.05 &amp; - 0.05&lt;=(z-z_aim) &lt;=0.05</guard>
+      <assignment>vx'==0 &amp; vy'==0 &amp; vz'==0 &amp; finish'==1</assignment>
+      <labelposition x="8.0" y="-39.0" width="586.0" height="80.0" />
+      <middlepoint x="546.0" y="350.5" />
+    </transition>
+    <transition source="0" target="1" bezier="true">
+      <label>commPos</label>
+      <assignment>finish'==0</assignment>
+      <labelposition x="-135.0" y="-40.0" width="136.0" height="50.0" />
+      <middlepoint x="390.5" y="360.0" />
+    </transition>
+  </component>
+  <component id="UAVPosBroadcasttemplate">
+    <param name="x" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="y" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="z" type="real" dynamics="any" local="false" d1="1" d2="1" />
+    <param name="vx" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="vy" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="vz" type="real" dynamics="any" local="true" d1="1" d2="1" />
+    <param name="comm" type="label" local="false" />
+    <location id="0" name="Cruise" x="693.0" y="268.0" width="266.0" height="62.0">
+      <flow>x'==vx &amp; y'==vy &amp; z'==vz</flow>
+    </location>
+    <transition source="0" target="0">
+      <label>comm</label>
+      <assignment>vx:==0 &amp; vy:==0 &amp; vz:==0</assignment>
+      <labelposition x="-156.0" y="-57.0" width="314.0" height="50.0" />
+    </transition>
+  </component>
+  <component id="ringController">
+    <param name="x1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="y1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="z1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="x2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="y2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="z2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="x3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="y3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="z3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="x4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="y4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="z4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="x1_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y1_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z1_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="x2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="x3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="x4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="xAvg" type="real" local="true" d1="1" d2="1" dynamics="any" />
+    <param name="yAvg" type="real" local="true" d1="1" d2="1" dynamics="any" />
+    <param name="zAvg" type="real" local="true" d1="1" d2="1" dynamics="any" />
+    <param name="pi" type="real" local="false" d1="1" d2="1" dynamics="const" />
+    <param name="r" type="real" local="false" d1="1" d2="1" dynamics="const" />
+    <param name="finish1" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish2" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish3" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish4" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="ringComplete" type="label" local="false" />
+    <location id="1" name="ctrl" x="541.0" y="285.0" width="586.0" height="368.0">
+      <invariant>x1_output==(x1_input+x2_input+x3_input+x4_input)/4 +r*sin(0*pi/2) &amp;
+      	x2_output==(x1_input+x2_input+x3_input+x4_input)/4 +r*sin(1*pi/2) &amp;
+      	x3_output==(x1_input+x2_input+x3_input+x4_input)/4 +r*sin(2*pi/2) &amp;
+      	x4_output==(x1_input+x2_input+x3_input+x4_input)/4 +r*sin(3*pi/2) &amp;
+      	y1_output==(y1_input+y2_input+y3_input+y4_input)/4+r*cos(0*pi/2) &amp;
+      	y2_output==(y1_input+y2_input+y3_input+y4_input)/4+r*cos(1*pi/2) &amp;
+      	y3_output==(y1_input+y2_input+y3_input+y4_input)/4+r*cos(2*pi/2) &amp;
+      	y4_output==(y1_input+y2_input+y3_input+y4_input)/4+r*cos(3*pi/2) &amp;
+      	z1_output==(z1_input+z2_input+z3_input+z4_input)/4  &amp;
+      	z2_output==(z1_input+z2_input+z3_input+z4_input)/4  &amp;
+      	z3_output==(z1_input+z2_input+z3_input+z4_input)/4  &amp;
+      	z4_output==(z1_input+z2_input+z3_input+z4_input)/4</invariant>
+    </location>
+    <transition source="1" target="1">
+      <label>ringComplete</label>
+      <guard>finish1==1 &amp; finish2==1 &amp; finish3==1 &amp; finish4==1</guard>
+      <labelposition x="-58.0" y="-49.0" width="542.0" height="54.0" />
+    </transition>
+  </component>
+  <component id="treeController">
+    <param name="x1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="y1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="z1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="x2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="x3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="x4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="y4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="z4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="d" type="real" local="false" d1="1" d2="1" dynamics="const" />
+    <param name="treeComplete" type="label" local="false" />
+    <param name="finish1" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish2" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish3" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <location id="1" name="loc1" x="570.0" y="275.0" width="360.0" height="238.0">
+      <invariant>x2_output==x1_input-d/2 &amp;
+      	x3_output==x1_input &amp;
+      	x4_output==x1_input+d/2 &amp;
+      	y2_output==y1_input-1.732*d/2 &amp;
+      	y3_output==y1_input-1.732*d/2 &amp;
+      	y4_output==y1_input-1.732*d/2 &amp;
+      	z2_output==z1_input &amp;
+      	z3_output==z1_input &amp;
+      	z4_output==z1_input</invariant>
+    </location>
+    <transition source="1" target="1">
+      <label>treeComplete</label>
+      <guard>finish1==1 &amp; finish2==1 &amp; finish3==1</guard>
+      <labelposition x="-153.0" y="-56.0" width="334.0" height="50.0" />
+    </transition>
+  </component>
+  <component id="speedSyn_1Controller">
+    <param name="vx1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="vy1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="vz1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" />
+    <param name="vx2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vx3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vx4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="speedSyn_1Complete" type="label" local="false" />
+    <param name="finish1" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish2" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish3" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <location id="1" name="loc1" x="570.0" y="275.0" width="360.0" height="238.0">
+      <invariant>vx2_output==vx1_input &amp;
+vx3_output==vx1_input &amp;
+vx4_output==vx1_input &amp;
+vy2_output==vy1_input &amp;
+vy3_output==vy1_input &amp;
+vy4_output==vy1_input &amp;
+vz2_output==vz1_input &amp;
+vz3_output==vz1_input &amp;
+vz4_output==vz1_input</invariant>
+    </location>
+    <transition source="1" target="1">
+      <label>speedSyn_1Complete</label>
+      <guard>finish1==1 &amp; finish2==1 &amp; finish3==1</guard>
+      <labelposition x="-153.0" y="-56.0" width="334.0" height="50.0" />
+    </transition>
+  </component>
+  <component id="seqControllerSerial2">
+    <param name="task1Start" type="label" local="false" />
+    <param name="task1Finish" type="label" local="false" />
+    <param name="task2Start" type="label" local="false" />
+    <param name="task2Finish" type="label" local="false" />
+    <location id="1" name="loc1" x="251.0" y="113.0" />
+    <location id="2" name="loc2" x="473.0" y="113.0" />
+    <location id="3" name="loc3" x="750.0" y="114.0" />
+    <location id="4" name="loc4" x="752.0" y="276.0" />
+    <location id="5" name="loc5" x="985.0" y="275.0" />
+    <transition source="1" target="2">
+      <label>task1Start</label>
+      <labelposition x="0.0" y="0.0" width="78.0" height="52.0" />
+    </transition>
+    <transition source="2" target="3">
+      <label>task1Finish</label>
+      <labelposition x="0.0" y="0.0" width="102.0" height="50.0" />
+    </transition>
+    <transition source="3" target="4">
+      <label>task2Start</label>
+      <labelposition x="0.0" y="0.0" width="116.0" height="50.0" />
+    </transition>
+    <transition source="4" target="5">
+      <label>task2Finish</label>
+      <labelposition x="0.0" y="0.0" width="76.0" height="50.0" />
+    </transition>
+  </component>
+  <component id="seqControllerParallel">
+    <param name="task12Start" type="label" local="false" />
+    <param name="task12Finish" type="label" local="false" />
+    <param name="task1Finish" type="label" local="false" />
+    <param name="task2Finish" type="label" local="false" />
+    <location id="1" name="loc1" x="251.0" y="113.0" />
+    <location id="2" name="loc2" x="473.0" y="113.0" />
+    <location id="3" name="loc3" x="750.0" y="114.0" />
+    <transition source="1" target="2">
+      <label>task12Start</label>
+      <assignment>task1Finish'==0 &amp; task2Finish'==0</assignment>
+      <labelposition x="-126.0" y="44.0" width="226.0" height="60.0" />
+    </transition>
+    <transition source="2" target="3">
+      <label>task12Finish</label>
+      <guard>task1Finish==1 &amp; task2Finish==1</guard>
+      <labelposition x="-96.0" y="36.0" width="226.0" height="104.0" />
+    </transition>
+  </component>
+  <component id="seqControllerSerial4">
+    <param name="task1Start" type="label" local="false" />
+    <param name="task1Finish" type="label" local="false" />
+    <param name="task2Start" type="label" local="false" />
+    <param name="task2Finish" type="label" local="false" />
+    <param name="task3Start" type="label" local="false" />
+    <param name="task3FInish" type="label" local="false" />
+    <param name="task4Start" type="label" local="false" />
+    <param name="task4Finish" type="label" local="false" />
+    <location id="1" name="loc1" x="251.0" y="113.0" />
+    <location id="2" name="loc2" x="426.0" y="114.0" />
+    <location id="3" name="loc3" x="650.0" y="113.0" />
+    <location id="4" name="loc4" x="858.0" y="115.0" />
+    <location id="5" name="loc5" x="1060.0" y="112.0" />
+    <location id="6" name="loc6" x="1062.0" y="285.0" />
+    <location id="7" name="loc7" x="868.0" y="280.0" />
+    <location id="8" name="loc8" x="677.0" y="286.0" />
+    <location id="9" name="loc9" x="457.0" y="285.0" />
+    <transition source="1" target="2">
+      <label>task1Start</label>
+      <labelposition x="-31.0" y="9.0" width="78.0" height="52.0" />
+    </transition>
+    <transition source="2" target="3">
+      <label>task1Finish</label>
+      <labelposition x="-32.0" y="6.0" width="102.0" height="50.0" />
+    </transition>
+    <transition source="3" target="4">
+      <label>task2Start</label>
+      <labelposition x="-50.0" y="8.0" width="116.0" height="50.0" />
+    </transition>
+    <transition source="4" target="5">
+      <label>task2Finish</label>
+      <labelposition x="-32.0" y="10.0" width="76.0" height="50.0" />
+    </transition>
+    <transition source="5" target="6">
+      <label>task3Start</label>
+      <labelposition x="-17.0" y="-17.0" width="134.0" height="62.0" />
+    </transition>
+    <transition source="6" target="7">
+      <label>task3FInish</label>
+      <labelposition x="-44.0" y="4.0" width="100.0" height="66.0" />
+    </transition>
+    <transition source="7" target="8">
+      <label>tast4Start</label>
+      <labelposition x="-33.0" y="6.0" width="82.0" height="60.0" />
+    </transition>
+    <transition source="8" target="9">
+      <label>task4Finish</label>
+      <labelposition x="-21.0" y="4.0" width="96.0" height="60.0" />
+    </transition>
+  </component>
+  <component id="speed13_040Controller">
+    <param name="vx1_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vx3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy1_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz1_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz3_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="speed13_040Finish" type="label" local="false" />
+    <param name="finish1" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish2" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <location id="1" name="loc1" x="611.0" y="277.0" width="336.0" height="258.0">
+      <invariant>vx1_output==0 &amp;
+vx3_output==0 &amp;
+vy1_output==4 &amp;
+vy3_output==4 &amp;
+vz1_output==0 &amp;
+vz3_output==0</invariant>
+    </location>
+    <transition source="1" target="1">
+      <label>speed13_040Finish</label>
+      <guard>finish1==1 &amp; finish2==1</guard>
+      <labelposition x="-95.0" y="-61.0" width="194.0" height="54.0" />
+    </transition>
+  </component>
+  <component id="speed24_080Controller">
+    <param name="vx2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vx4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vy4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz2_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="vz4_output" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish1" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="finish2" type="real" local="false" d1="1" d2="1" dynamics="any" />
+    <param name="speed24_080Finish" type="label" local="false" />
+    <location id="1" name="loc1" x="611.0" y="277.0" width="336.0" height="258.0">
+      <invariant>vx2_output==0 &amp;
+vx4_output==0 &amp;
+vy2_output==8 &amp;
+vy4_output==8 &amp;
+vz2_output==0 &amp;
+vz4_output==0</invariant>
+    </location>
+    <transition source="1" target="1">
+      <label>speed24_080Finish</label>
+      <guard>finish1==1 &amp; finish2==1</guard>
+      <labelposition x="-65.0" y="-71.0" width="170.0" height="60.0" />
+    </transition>
+  </component>
+  <component id="r5_CW">
+    <param name="r5_CWStart" type="label" local="false" x="174.0" y="337.0" />
+    <param name="x1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1214.0" y="103.0" />
+    <param name="y1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1217.0" y="122.0" />
+    <param name="z1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1214.0" y="137.0" />
+    <param name="x1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="654.0" y="103.0" />
+    <param name="y1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="654.0" y="123.0" />
+    <param name="z1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="654.0" y="143.0" />
+    <param name="finish1" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1213.0" y="160.0" />
+    <param name="x2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1243.0" y="212.0" />
+    <param name="y2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1243.0" y="232.0" />
+    <param name="z2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1243.0" y="252.0" />
+    <param name="x2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="722.0" y="213.0" />
+    <param name="y2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="722.0" y="233.0" />
+    <param name="z2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="722.0" y="252.0" />
+    <param name="finish2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1245.0" y="277.0" />
+    <param name="x3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1263.0" y="343.0" />
+    <param name="y3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1263.0" y="363.0" />
+    <param name="z3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1263.0" y="383.0" />
+    <param name="x3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="815.0" y="346.0" />
+    <param name="y3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="815.0" y="366.0" />
+    <param name="z3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="815.0" y="386.0" />
+    <param name="finish3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1261.0" y="407.0" />
+    <param name="x4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1282.0" y="469.0" />
+    <param name="y4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1282.0" y="489.0" />
+    <param name="z4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1282.0" y="509.0" />
+    <param name="x4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="903.0" y="469.0" />
+    <param name="y4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="903.0" y="489.0" />
+    <param name="z4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="903.0" y="509.0" />
+    <param name="finish4" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1284.0" y="529.0" />
+    <param name="x1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="597.0" />
+    <param name="y1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="617.0" />
+    <param name="z1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="637.0" />
+    <param name="x2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="657.0" />
+    <param name="y2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="677.0" />
+    <param name="z2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="697.0" />
+    <param name="x3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="717.0" />
+    <param name="y3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="737.0" />
+    <param name="z3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="757.0" />
+    <param name="x4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="777.0" />
+    <param name="y4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="797.0" />
+    <param name="z4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="163.0" y="817.0" />
+    <param name="pi" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r5_CWFinish" type="label" local="false" x="183.0" y="910.0" />
+    <bind component="UAVPosCtrltemplate" as="u1" x="1084.0" y="130.0" width="186.0" height="84.0">
+      <map key="x">x1</map>
+      <map key="y">y1</map>
+      <map key="z">z1</map>
+      <map key="x_aim">x1_aim</map>
+      <map key="y_aim">y1_aim</map>
+      <map key="z_aim">z1_aim</map>
+      <map key="commPos">r5_CWStart</map>
+      <map key="finish">finish1</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u2" x="1083.0" y="247.0" width="182.0" height="84.0">
+      <map key="x">x2</map>
+      <map key="y">y2</map>
+      <map key="z">z2</map>
+      <map key="x_aim">x2_aim</map>
+      <map key="y_aim">y2_aim</map>
+      <map key="z_aim">z2_aim</map>
+      <map key="commPos">r5_CWStart</map>
+      <map key="finish">finish2</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u3" x="1082.0" y="378.0" width="178.0" height="86.0">
+      <map key="x">x3</map>
+      <map key="y">y3</map>
+      <map key="z">z3</map>
+      <map key="x_aim">x3_aim</map>
+      <map key="y_aim">y3_aim</map>
+      <map key="z_aim">z3_aim</map>
+      <map key="commPos">r5_CWStart</map>
+      <map key="finish">finish3</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u4" x="1076.0" y="502.0" width="182.0" height="86.0">
+      <map key="x">x4</map>
+      <map key="y">y4</map>
+      <map key="z">z4</map>
+      <map key="x_aim">x4_aim</map>
+      <map key="y_aim">y4_aim</map>
+      <map key="z_aim">z4_aim</map>
+      <map key="commPos">r5_CWStart</map>
+      <map key="finish">finish4</map>
+    </bind>
+    <bind component="ringController" as="ringController" x="432.0" y="722.0" width="260.0" height="268.0">
+      <map key="x1_input">x1_input</map>
+      <map key="y1_input">y1_input</map>
+      <map key="z1_input">z1_input</map>
+      <map key="x2_input">x2_input</map>
+      <map key="y2_input">y2_input</map>
+      <map key="z2_input">z2_input</map>
+      <map key="x3_input">x3_input</map>
+      <map key="y3_input">y3_input</map>
+      <map key="z3_input">z3_input</map>
+      <map key="x4_input">x4_input</map>
+      <map key="y4_input">y4_input</map>
+      <map key="z4_input">z4_input</map>
+      <map key="x1_output">x1_aim</map>
+      <map key="y1_output">y1_aim</map>
+      <map key="z1_output">z1_aim</map>
+      <map key="x2_output">x2_aim</map>
+      <map key="y2_output">y2_aim</map>
+      <map key="z2_output">z2_aim</map>
+      <map key="x3_output">x3_aim</map>
+      <map key="y3_output">y3_aim</map>
+      <map key="z3_output">z3_aim</map>
+      <map key="x4_output">x4_aim</map>
+      <map key="y4_output">y4_aim</map>
+      <map key="z4_output">z4_aim</map>
+      <map key="pi">pi</map>
+      <map key="r">5</map>
+      <map key="finish1">finish1</map>
+      <map key="finish2">finish2</map>
+      <map key="finish3">finish3</map>
+      <map key="finish4">finish4</map>
+      <map key="ringComplete">r5_CWFinish</map>
+    </bind>
+  </component>
+  <component id="r1_CCW">
+    <param name="r1_CCWStart" type="label" local="false" x="174.0" y="337.0" />
+    <param name="x1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1225.0" y="101.0" />
+    <param name="y1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1228.0" y="120.0" />
+    <param name="z1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1225.0" y="135.0" />
+    <param name="x1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="654.0" y="103.0" />
+    <param name="y1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="654.0" y="123.0" />
+    <param name="z1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="654.0" y="143.0" />
+    <param name="finish1" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1224.0" y="158.0" />
+    <param name="x2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1243.0" y="212.0" />
+    <param name="y2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1243.0" y="232.0" />
+    <param name="z2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1243.0" y="252.0" />
+    <param name="x2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="722.0" y="213.0" />
+    <param name="y2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="722.0" y="233.0" />
+    <param name="z2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="722.0" y="252.0" />
+    <param name="finish2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1245.0" y="277.0" />
+    <param name="x3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1268.0" y="346.0" />
+    <param name="y3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1268.0" y="366.0" />
+    <param name="z3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1268.0" y="386.0" />
+    <param name="x3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="815.0" y="346.0" />
+    <param name="y3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="815.0" y="366.0" />
+    <param name="z3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="815.0" y="386.0" />
+    <param name="finish3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1268.0" y="409.0" />
+    <param name="x4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1291.0" y="467.0" />
+    <param name="y4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1293.0" y="488.0" />
+    <param name="z4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1293.0" y="508.0" />
+    <param name="x4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="903.0" y="469.0" />
+    <param name="y4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="903.0" y="489.0" />
+    <param name="z4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="903.0" y="509.0" />
+    <param name="finish4" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1295.0" y="528.0" />
+    <param name="x1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="216.0" y="785.0" />
+    <param name="y1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="216.0" y="805.0" />
+    <param name="z1_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="216.0" y="825.0" />
+    <param name="x2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="219.0" y="721.0" />
+    <param name="y2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="219.0" y="741.0" />
+    <param name="z2_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="219.0" y="761.0" />
+    <param name="x3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="218.0" y="660.0" />
+    <param name="y3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="218.0" y="680.0" />
+    <param name="z3_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="218.0" y="700.0" />
+    <param name="x4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="215.0" y="597.0" />
+    <param name="y4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="215.0" y="617.0" />
+    <param name="z4_input" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="false" x="215.0" y="637.0" />
+    <param name="pi" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r1_CCWFinish" type="label" local="false" x="183.0" y="910.0" />
+    <bind component="UAVPosCtrltemplate" as="u1" x="1084.0" y="130.0" width="186.0" height="84.0">
+      <map key="x">x1</map>
+      <map key="y">y1</map>
+      <map key="z">z1</map>
+      <map key="x_aim">x1_aim</map>
+      <map key="y_aim">y1_aim</map>
+      <map key="z_aim">z1_aim</map>
+      <map key="commPos">r1_CCWStart</map>
+      <map key="finish">finish1</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u2" x="1083.0" y="247.0" width="182.0" height="84.0">
+      <map key="x">x2</map>
+      <map key="y">y2</map>
+      <map key="z">z2</map>
+      <map key="x_aim">x2_aim</map>
+      <map key="y_aim">y2_aim</map>
+      <map key="z_aim">z2_aim</map>
+      <map key="commPos">r1_CCWStart</map>
+      <map key="finish">finish2</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u3" x="1082.0" y="378.0" width="178.0" height="86.0">
+      <map key="x">x3</map>
+      <map key="y">y3</map>
+      <map key="z">z3</map>
+      <map key="x_aim">x3_aim</map>
+      <map key="y_aim">y3_aim</map>
+      <map key="z_aim">z3_aim</map>
+      <map key="commPos">r1_CCWStart</map>
+      <map key="finish">finish3</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u4" x="1076.0" y="502.0" width="182.0" height="86.0">
+      <map key="x">x4</map>
+      <map key="y">y4</map>
+      <map key="z">z4</map>
+      <map key="x_aim">x4_aim</map>
+      <map key="y_aim">y4_aim</map>
+      <map key="z_aim">z4_aim</map>
+      <map key="commPos">r1_CCWStart</map>
+      <map key="finish">finish4</map>
+    </bind>
+    <bind component="ringController" as="ringController" x="432.0" y="722.0" width="260.0" height="268.0">
+      <map key="x1_input">x4_input</map>
+      <map key="y1_input">y4_input</map>
+      <map key="z1_input">z4_input</map>
+      <map key="x2_input">x3_input</map>
+      <map key="y2_input">y3_input</map>
+      <map key="z2_input">z3_input</map>
+      <map key="x3_input">x2_input</map>
+      <map key="y3_input">y2_input</map>
+      <map key="z3_input">z2_input</map>
+      <map key="x4_input">x1_input</map>
+      <map key="y4_input">y1_input</map>
+      <map key="z4_input">z1_input</map>
+      <map key="x1_output">x4_aim</map>
+      <map key="y1_output">y4_aim</map>
+      <map key="z1_output">z4_aim</map>
+      <map key="x2_output">x3_aim</map>
+      <map key="y2_output">y3_aim</map>
+      <map key="z2_output">z3_aim</map>
+      <map key="x3_output">x2_aim</map>
+      <map key="y3_output">y2_aim</map>
+      <map key="z3_output">z2_aim</map>
+      <map key="x4_output">x1_aim</map>
+      <map key="y4_output">y1_aim</map>
+      <map key="z4_output">z1_aim</map>
+      <map key="pi">pi</map>
+      <map key="r">1</map>
+      <map key="finish1">finish4</map>
+      <map key="finish2">finish3</map>
+      <map key="finish3">finish2</map>
+      <map key="finish4">finish1</map>
+      <map key="ringComplete">r1_CCWFinish</map>
+    </bind>
+  </component>
+  <component id="ringFormation">
+    <param name="r5_CWStart" type="label" local="false" x="244.0" y="468.0" />
+    <param name="x1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="116.0" />
+    <param name="y1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="136.0" />
+    <param name="z1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="156.0" />
+    <param name="x2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="176.0" />
+    <param name="y2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="196.0" />
+    <param name="z2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="216.0" />
+    <param name="x3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="236.0" />
+    <param name="y3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="256.0" />
+    <param name="z3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="276.0" />
+    <param name="x4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="296.0" />
+    <param name="y4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="316.0" />
+    <param name="z4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1240.0" y="336.0" />
+    <param name="x1_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="116.0" />
+    <param name="y1_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="136.0" />
+    <param name="z1_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="156.0" />
+    <param name="x2_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="176.0" />
+    <param name="y2_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="196.0" />
+    <param name="z2_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="216.0" />
+    <param name="x3_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="236.0" />
+    <param name="y3_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="256.0" />
+    <param name="z3_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="276.0" />
+    <param name="x4_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="296.0" />
+    <param name="y4_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="316.0" />
+    <param name="z4_input" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="154.0" y="336.0" />
+    <param name="pi" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r5_CWFinish" type="label" local="true" x="285.0" y="554.0" />
+    <param name="r1_CCWStart" type="label" local="true" x="534.0" y="471.0" />
+    <param name="r1_CCWFinish" type="label" local="false" x="640.0" y="595.0" />
+    <bind component="r5_CW" as="r5_CW" x="401.0" y="228.0" width="170.0" height="270.0">
+      <map key="r5_CWStart">r5_CWStart</map>
+      <map key="x1">x1</map>
+      <map key="y1">y1</map>
+      <map key="z1">z1</map>
+      <map key="x2">x2</map>
+      <map key="y2">y2</map>
+      <map key="z2">z2</map>
+      <map key="x3">x3</map>
+      <map key="y3">y3</map>
+      <map key="z3">z3</map>
+      <map key="x4">x4</map>
+      <map key="y4">y4</map>
+      <map key="z4">z4</map>
+      <map key="x1_input">x1_input</map>
+      <map key="y1_input">y1_input</map>
+      <map key="z1_input">z1_input</map>
+      <map key="x2_input">x2_input</map>
+      <map key="y2_input">y2_input</map>
+      <map key="z2_input">z2_input</map>
+      <map key="x3_input">x3_input</map>
+      <map key="y3_input">y3_input</map>
+      <map key="z3_input">z3_input</map>
+      <map key="x4_input">x4_input</map>
+      <map key="y4_input">y4_input</map>
+      <map key="z4_input">z4_input</map>
+      <map key="pi">pi</map>
+      <map key="r">5</map>
+      <map key="r5_CWFinish">r5_CWFinish</map>
+    </bind>
+    <bind component="r1_CCW" as="r1_CCW" x="859.0" y="229.0" width="182.0" height="272.0">
+      <map key="x1">x1</map>
+      <map key="y1">y1</map>
+      <map key="z1">z1</map>
+      <map key="r1_CCWStart">r1_CCWStart</map>
+      <map key="x2">x2</map>
+      <map key="y2">y2</map>
+      <map key="z2">z2</map>
+      <map key="x3">x3</map>
+      <map key="y3">y3</map>
+      <map key="z3">z3</map>
+      <map key="x4">x4</map>
+      <map key="y4">y4</map>
+      <map key="z4">z4</map>
+      <map key="x1_input">x1_input</map>
+      <map key="y1_input">y1_input</map>
+      <map key="z1_input">z1_input</map>
+      <map key="x2_input">x2_input</map>
+      <map key="y2_input">y2_input</map>
+      <map key="z2_input">z2_input</map>
+      <map key="x3_input">x3_input</map>
+      <map key="y3_input">y3_input</map>
+      <map key="z3_input">z3_input</map>
+      <map key="x4_input">x4_input</map>
+      <map key="y4_input">y4_input</map>
+      <map key="z4_input">z4_input</map>
+      <map key="pi">pi</map>
+      <map key="r">1</map>
+      <map key="r1_CCWFinish">r1_CCWFinish</map>
+    </bind>
+    <bind component="seqControllerSerial2" as="seqControllerSerial2" x="930.0" y="562.0" width="146.0" height="76.0">
+      <map key="task1Start">r5_CWStart</map>
+      <map key="task1Finish">r5_CWFinish</map>
+      <map key="task2Start">r1_CCWStart</map>
+      <map key="task2Finish">r1_CCWFinish</map>
+    </bind>
+  </component>
+  <component id="treeFormation">
+    <param name="x1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="509.0" y="78.0" />
+    <param name="y1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="511.0" y="116.0" />
+    <param name="z1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="510.0" y="153.0" />
+    <param name="x2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1177.0" y="268.0" />
+    <param name="y2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1180.0" y="288.0" />
+    <param name="z2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1180.0" y="309.0" />
+    <param name="x2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="false" x="826.0" y="268.0" />
+    <param name="y2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="826.0" y="288.0" />
+    <param name="z2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="826.0" y="308.0" />
+    <param name="treeFormationStart" type="label" local="false" x="279.0" y="332.0" />
+    <param name="x3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1214.0" y="385.0" />
+    <param name="y3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1216.0" y="404.0" />
+    <param name="z3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1218.0" y="424.0" />
+    <param name="x3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="797.0" y="388.0" />
+    <param name="y3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="798.0" y="406.0" />
+    <param name="z3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="799.0" y="426.0" />
+    <param name="x4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1282.0" y="497.0" />
+    <param name="y4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1281.0" y="514.0" />
+    <param name="z4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1283.0" y="538.0" />
+    <param name="x4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="778.0" y="498.0" />
+    <param name="y4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="780.0" y="519.0" />
+    <param name="z4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="779.0" y="539.0" />
+    <param name="finish2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1166.0" y="335.0" />
+    <param name="finish3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1205.0" y="445.0" />
+    <param name="finish4" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1267.0" y="564.0" />
+    <param name="treeFormationFinish" type="label" local="false" />
+    <bind component="UAVPosCtrltemplate" as="u2" x="1013.0" y="301.0" width="182.0" height="84.0">
+      <map key="x">x2</map>
+      <map key="y">y2</map>
+      <map key="z">z2</map>
+      <map key="x_aim">x2_aim</map>
+      <map key="y_aim">y2_aim</map>
+      <map key="z_aim">z2_aim</map>
+      <map key="commPos">treeFormationStart</map>
+      <map key="finish">finish2</map>
+    </bind>
+    <bind component="UAVPosBroadcasttemplate" as="u1" x="380.0" y="115.0" width="112.0" height="76.0">
+      <map key="x">x1</map>
+      <map key="y">y1</map>
+      <map key="z">z1</map>
+      <map key="comm">treeFormationStart</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u3" x="1015.0" y="415.0" width="180.0" height="80.0">
+      <map key="x">x3</map>
+      <map key="y">y3</map>
+      <map key="z">z3</map>
+      <map key="x_aim">x3_aim</map>
+      <map key="y_aim">y3_aim</map>
+      <map key="z_aim">z3_aim</map>
+      <map key="commPos">treeFormationStart</map>
+      <map key="finish">finish3</map>
+    </bind>
+    <bind component="UAVPosCtrltemplate" as="u4" x="1016.0" y="529.0" width="184.0" height="86.0">
+      <map key="x">x4</map>
+      <map key="y">y4</map>
+      <map key="z">z4</map>
+      <map key="x_aim">x4_aim</map>
+      <map key="y_aim">y4_aim</map>
+      <map key="z_aim">z4_aim</map>
+      <map key="commPos">treeFormationStart</map>
+      <map key="finish">finish4</map>
+    </bind>
+    <bind component="treeController" as="treeController" x="645.0" y="119.0" width="142.0" height="122.0">
+      <map key="x1_input">x1</map>
+      <map key="y1_input">y1</map>
+      <map key="z1_input">z1</map>
+      <map key="x2_output">y2_aim</map>
+      <map key="y2_output">y2_aim</map>
+      <map key="z2_output">z2_aim</map>
+      <map key="x3_output">x3_aim</map>
+      <map key="y3_output">y3_aim</map>
+      <map key="z3_output">z3_aim</map>
+      <map key="x4_output">x4_aim</map>
+      <map key="y4_output">y4_aim</map>
+      <map key="z4_output">z4_aim</map>
+      <map key="d">5</map>
+      <map key="treeComplete">treeFormationFinish</map>
+      <map key="finish1">finish2</map>
+      <map key="finish2">finish3</map>
+      <map key="finish3">finish4</map>
+    </bind>
+  </component>
+  <component id="speed13_040">
+    <param name="vx1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1066.0" y="141.0" />
+    <param name="vy1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1066.0" y="161.0" />
+    <param name="vz1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1066.0" y="181.0" />
+    <param name="vx1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="678.0" y="143.0" />
+    <param name="vy1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="678.0" y="163.0" />
+    <param name="vz1_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="678.0" y="183.0" />
+    <param name="speed13_040Start" type="label" local="false" x="138.0" y="215.0" />
+    <param name="finish1" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1093.0" y="211.0" />
+    <param name="vx3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1073.0" y="296.0" />
+    <param name="vy3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1073.0" y="316.0" />
+    <param name="vz3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1073.0" y="336.0" />
+    <param name="vx3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="640.0" y="298.0" />
+    <param name="vy3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="640.0" y="318.0" />
+    <param name="vz3_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="640.0" y="338.0" />
+    <param name="finish2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1136.0" y="367.0" />
+    <param name="speed13_040Finish" type="label" local="false" x="135.0" y="589.0" />
+    <bind component="UAVSpeedCtrltemplate" as="u1" x="850.0" y="176.0" width="156.0" height="100.0">
+      <map key="vx">vx1</map>
+      <map key="vy">vy1</map>
+      <map key="vz">vz1</map>
+      <map key="vx_aim">vx1_aim</map>
+      <map key="vy_aim">vy1_aim</map>
+      <map key="vz_aim">vz1_aim</map>
+      <map key="commVel">speed13_040Start</map>
+      <map key="finish">finish1</map>
+    </bind>
+    <bind component="UAVSpeedCtrltemplate" as="u3" x="851.0" y="331.0" width="166.0" height="100.0">
+      <map key="vx">vx3</map>
+      <map key="vy">vy3</map>
+      <map key="vz">vz3</map>
+      <map key="vx_aim">vx3_aim</map>
+      <map key="vy_aim">vy3_aim</map>
+      <map key="vz_aim">vz3_aim</map>
+      <map key="commVel">speed13_040Start</map>
+      <map key="finish">finish2</map>
+    </bind>
+    <bind component="speed13_040Controller" as="speed13_040Controller" x="401.0" y="508.0" width="260.0" height="232.0">
+      <map key="vx1_output">vx1_aim</map>
+      <map key="vx3_output">vx3_aim</map>
+      <map key="vy1_output">vy1_aim</map>
+      <map key="vy3_output">vy3_aim</map>
+      <map key="vz1_output">vz1_aim</map>
+      <map key="vz3_output">vz3_aim</map>
+      <map key="speed13_040Finish">speed13_040Finish</map>
+      <map key="finish1">finish1</map>
+      <map key="finish2">finish2</map>
+    </bind>
+  </component>
+  <component id="speed24_080">
+    <param name="vx2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1066.0" y="141.0" />
+    <param name="vy2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1066.0" y="161.0" />
+    <param name="vz2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1066.0" y="181.0" />
+    <param name="vx2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="678.0" y="143.0" />
+    <param name="vy2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="678.0" y="163.0" />
+    <param name="vz2_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="678.0" y="183.0" />
+    <param name="speed24_080Start" type="label" local="false" x="138.0" y="215.0" />
+    <param name="finish1" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1093.0" y="211.0" />
+    <param name="vx4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1073.0" y="296.0" />
+    <param name="vy4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1073.0" y="316.0" />
+    <param name="vz4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1073.0" y="336.0" />
+    <param name="vx4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="640.0" y="298.0" />
+    <param name="vy4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="640.0" y="318.0" />
+    <param name="vz4_aim" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="640.0" y="338.0" />
+    <param name="finish2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1136.0" y="367.0" />
+    <param name="speed24_080Finish" type="label" local="false" x="148.0" y="619.0" />
+    <bind component="UAVSpeedCtrltemplate" as="u1" x="850.0" y="176.0" width="156.0" height="100.0">
+      <map key="vx">vx2</map>
+      <map key="vy">vy2</map>
+      <map key="vz">vz2</map>
+      <map key="vx_aim">vx2_aim</map>
+      <map key="vy_aim">vy2_aim</map>
+      <map key="vz_aim">vz2_aim</map>
+      <map key="commVel">speed24_080Start</map>
+      <map key="finish">finish1</map>
+    </bind>
+    <bind component="UAVSpeedCtrltemplate" as="u3" x="851.0" y="331.0" width="166.0" height="100.0">
+      <map key="vx">vx4</map>
+      <map key="vy">vy4</map>
+      <map key="vz">vz4</map>
+      <map key="vx_aim">vx4_aim</map>
+      <map key="vy_aim">vy4_aim</map>
+      <map key="vz_aim">vz4_aim</map>
+      <map key="commVel">speed24_080Start</map>
+      <map key="finish">finish2</map>
+    </bind>
+    <bind component="speed24_080Controller" as="speed24_080Controller" x="383.0" y="513.0" width="218.0" height="214.0">
+      <map key="vx2_output">vx2_aim</map>
+      <map key="vx4_output">vx4_aim</map>
+      <map key="vy2_output">vy2_aim</map>
+      <map key="vy4_output">vy4_aim</map>
+      <map key="vz2_output">vz2_aim</map>
+      <map key="vz4_output">vz4_aim</map>
+      <map key="finish1">finish1</map>
+      <map key="finish2">finish2</map>
+      <map key="speed24_080Finish">speed24_080Finish</map>
+    </bind>
+  </component>
+  <component id="speedControl">
+    <param name="vx1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1144.0" y="103.0" />
+    <param name="vy1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1144.0" y="123.0" />
+    <param name="vz1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1144.0" y="143.0" />
+    <param name="speed13_040Start" type="label" local="true" x="579.0" y="132.0" />
+    <param name="vx2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="299.0" />
+    <param name="vy2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="319.0" />
+    <param name="vz2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="339.0" />
+    <param name="vx3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1146.0" y="165.0" />
+    <param name="vy3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1146.0" y="185.0" />
+    <param name="vz3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="205.0" />
+    <param name="speed13_040Finish" type="label" local="true" x="510.0" y="188.0" />
+    <param name="speed24_080Start" type="label" local="true" x="572.0" y="324.0" />
+    <param name="vx4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="365.0" />
+    <param name="vy4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="385.0" />
+    <param name="vz4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1145.0" y="405.0" />
+    <param name="speed24_080Finish" type="label" local="true" x="475.0" y="384.0" />
+    <param name="speedControlStart" type="label" local="false" x="280.0" y="483.0" />
+    <param name="speedControlFInish" type="label" local="false" x="281.0" y="512.0" />
+    <bind component="speed13_040" as="speed13_040" x="862.0" y="154.0" width="266.0" height="116.0">
+      <map key="vx1">vx1</map>
+      <map key="vy1">vy1</map>
+      <map key="vz1">vz1</map>
+      <map key="speed13_040Start">speed13_040Start</map>
+      <map key="vx3">vx3</map>
+      <map key="vy3">vy3</map>
+      <map key="vz3">vz3</map>
+      <map key="speed13_040Finish">speed13_040Finish</map>
+    </bind>
+    <bind component="speed24_080" as="speed24_080" x="867.0" y="354.0" width="264.0" height="126.0">
+      <map key="vx2">vx2</map>
+      <map key="vy2">vy2</map>
+      <map key="vz2">vz2</map>
+      <map key="speed24_080Start">speed24_080Start</map>
+      <map key="vx4">vx4</map>
+      <map key="vy4">vy4</map>
+      <map key="vz4">vz4</map>
+      <map key="speed24_080Finish">speed24_080Finish</map>
+    </bind>
+    <bind component="seqControllerParallel" as="seqControllerParallel" x="683.0" y="526.0" width="214.0" height="114.0">
+      <map key="task12Start">speedControlStart</map>
+      <map key="task12Finish">speedControlFInish</map>
+      <map key="task1Finish">speed13_040Finish</map>
+      <map key="task2Finish">speed24_080Finish</map>
+    </bind>
+  </component>
+  <component id="speedSyn_1">
+    <param name="speedSyn_1Start" type="label" local="false" x="207.0" y="296.0" />
+    <param name="vx1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="479.0" y="98.0" />
+    <param name="vy1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="479.0" y="118.0" />
+    <param name="vz1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="479.0" y="138.0" />
+    <param name="vx2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1049.0" y="232.0" />
+    <param name="vy2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1049.0" y="252.0" />
+    <param name="vz2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1050.0" y="270.0" />
+    <param name="vx_aim2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="728.0" y="233.0" />
+    <param name="vy_aim2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="728.0" y="253.0" />
+    <param name="vz_aim2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="728.0" y="273.0" />
+    <param name="finish1" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1033.0" y="295.0" />
+    <param name="vx3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1051.0" y="361.0" />
+    <param name="vy3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1051.0" y="381.0" />
+    <param name="vz3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1051.0" y="401.0" />
+    <param name="finish2" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1067.0" y="430.0" />
+    <param name="vx_aim3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="763.0" y="363.0" />
+    <param name="vy_aim3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="763.0" y="383.0" />
+    <param name="vz_aim3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="763.0" y="403.0" />
+    <param name="vx4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1054.0" y="488.0" />
+    <param name="vy4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1054.0" y="508.0" />
+    <param name="vz4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1055.0" y="528.0" />
+    <param name="vx_aim4" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="799.0" y="492.0" />
+    <param name="vy_aim4" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="799.0" y="512.0" />
+    <param name="vz_aim4" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="799.0" y="532.0" />
+    <param name="finish3" type="real" local="true" d1="1" d2="1" dynamics="any" controlled="true" x="1096.0" y="557.0" />
+    <param name="speedSyn_1Finish" type="label" local="false" />
+    <bind component="UAVSpeedBroadcasttemplate" as="u1" x="364.0" y="118.0" width="102.0" height="58.0">
+      <map key="vx">vx1</map>
+      <map key="vy">vy1</map>
+      <map key="vz">vz1</map>
+      <map key="comm">speedSyn_1Start</map>
+    </bind>
+    <bind component="UAVSpeedCtrltemplate" as="u2" x="932.0" y="264.0" width="112.0" height="90.0">
+      <map key="vx">vx2</map>
+      <map key="vy">vy2</map>
+      <map key="vz">vz2</map>
+      <map key="vx_aim">vx_aim2</map>
+      <map key="vy_aim">vy_aim2</map>
+      <map key="vz_aim">vz_aim2</map>
+      <map key="commVel">speedSyn_1Start</map>
+      <map key="finish">finish1</map>
+    </bind>
+    <bind component="UAVSpeedCtrltemplate" as="u3" x="929.0" y="394.0" width="118.0" height="90.0">
+      <map key="vx">vx3</map>
+      <map key="vy">vy3</map>
+      <map key="vz">vz3</map>
+      <map key="vx_aim">vx_aim3</map>
+      <map key="vy_aim">vy_aim3</map>
+      <map key="vz_aim">vz_aim3</map>
+      <map key="commVel">speedSyn_1Start</map>
+      <map key="finish">finish2</map>
+    </bind>
+    <bind component="UAVSpeedCtrltemplate" as="u4" x="922.0" y="518.0" width="106.0" height="92.0">
+      <map key="vx">vx4</map>
+      <map key="vy">vy4</map>
+      <map key="vz">vz4</map>
+      <map key="vx_aim">vx_aim4</map>
+      <map key="vy_aim">vy_aim4</map>
+      <map key="vz_aim">vz_aim4</map>
+      <map key="commVel">speedSyn_1Start</map>
+      <map key="finish">finish3</map>
+    </bind>
+    <bind component="speedSyn_1Controller" as="speedSyn_1Controller" x="595.0" y="693.0" width="170.0" height="260.0">
+      <map key="vx1_input">vx1</map>
+      <map key="vy1_input">vy1</map>
+      <map key="vz1_input">vz1</map>
+      <map key="vx2_output">vx_aim2</map>
+      <map key="vy2_output">vy_aim2</map>
+      <map key="vz2_output">vz_aim2</map>
+      <map key="vx3_output">vx_aim3</map>
+      <map key="vy3_output">vy_aim3</map>
+      <map key="vz3_output">vz_aim3</map>
+      <map key="vx4_output">vx_aim4</map>
+      <map key="vy4_output">vy_aim4</map>
+      <map key="vz4_output">vz_aim4</map>
+      <map key="speedSyn_1Complete">speedSyn_1Finish</map>
+      <map key="finish1">finish1</map>
+      <map key="finish2">finish2</map>
+      <map key="finish3">finish3</map>
+    </bind>
+  </component>
+  <component id="mission">
+    <param name="ringFormationStart" type="label" local="false" x="139.0" y="306.0" />
+    <param name="x1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="71.0" />
+    <param name="y1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="91.0" />
+    <param name="z1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="111.0" />
+    <param name="x2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="131.0" />
+    <param name="y2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="151.0" />
+    <param name="z2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="171.0" />
+    <param name="x3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="191.0" />
+    <param name="y3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="211.0" />
+    <param name="z3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="231.0" />
+    <param name="x4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="251.0" />
+    <param name="y4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="271.0" />
+    <param name="z4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1199.0" y="291.0" />
+    <param name="pi" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="r" type="real" local="false" d1="1" d2="1" dynamics="const" controlled="true" />
+    <param name="ringFormationFinish" type="label" local="true" x="174.0" y="472.0" />
+    <param name="treeFormationStart" type="label" local="true" x="465.0" y="370.0" />
+    <param name="treeFormationFinish" type="label" local="true" x="497.0" y="474.0" />
+    <param name="speedSyn_1Start" type="label" local="true" x="740.0" y="719.0" />
+    <param name="vx1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="791.0" />
+    <param name="vy1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="811.0" />
+    <param name="vz1" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="831.0" />
+    <param name="vx2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="851.0" />
+    <param name="vy2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="871.0" />
+    <param name="vz2" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="891.0" />
+    <param name="vx3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="911.0" />
+    <param name="vy3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="931.0" />
+    <param name="vz3" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="951.0" />
+    <param name="vx4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="971.0" />
+    <param name="vy4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="991.0" />
+    <param name="vz4" type="real" local="false" d1="1" d2="1" dynamics="any" controlled="true" x="1308.0" y="1011.0" />
+    <param name="speedSyn_1Finish" type="label" local="true" x="783.0" y="747.0" />
+    <param name="speedControlStart" type="label" local="true" />
+    <param name="speedControlFInish" type="label" local="false" x="201.0" y="738.0" />
+    <bind component="ringFormation" as="ringFormation" x="332.0" y="177.0" width="202.0" height="246.0">
+      <map key="r5_CWStart">ringFormationStart</map>
+      <map key="x1">x1</map>
+      <map key="y1">y1</map>
+      <map key="z1">z1</map>
+      <map key="x2">x2</map>
+      <map key="y2">y2</map>
+      <map key="z2">z2</map>
+      <map key="x3">x3</map>
+      <map key="y3">y3</map>
+      <map key="z3">z3</map>
+      <map key="x4">x4</map>
+      <map key="y4">y4</map>
+      <map key="z4">z4</map>
+      <map key="pi">pi</map>
+      <map key="r">r</map>
+      <map key="r1_CCWFinish">ringFormationFinish</map>
+    </bind>
+    <bind component="treeFormation" as="treeFormation" x="651.0" y="178.0" width="244.0" height="244.0">
+      <map key="x1">x1</map>
+      <map key="y1">y1</map>
+      <map key="z1">z1</map>
+      <map key="x2">x2</map>
+      <map key="y2">y2</map>
+      <map key="z2">z2</map>
+      <map key="treeFormationStart">treeFormationStart</map>
+      <map key="x3">x3</map>
+      <map key="y3">y3</map>
+      <map key="z3">z3</map>
+      <map key="x4">x4</map>
+      <map key="y4">y4</map>
+      <map key="z4">z4</map>
+      <map key="treeFormationFinish">treeFormationFinish</map>
+    </bind>
+    <bind component="seqControllerSerial4" as="seqControllerSerial4" x="958.0" y="566.0" width="192.0" height="156.0">
+      <map key="task1Start">ringFormationStart</map>
+      <map key="task1Finish">ringFormationFinish</map>
+      <map key="task2Start">treeFormationStart</map>
+      <map key="task2Finish">treeFormationFinish</map>
+      <map key="task3Start">speedControlStart</map>
+      <map key="task3FInish">speedControlFInish</map>
+      <map key="task4Start">speedSyn_1Start</map>
+      <map key="task4Finish">speedSyn_1Finish</map>
+    </bind>
+    <bind component="speedSyn_1" as="speedSyn" x="956.0" y="902.0" width="228.0" height="244.0">
+      <map key="speedSyn_1Start">speedSyn_1Start</map>
+      <map key="vx1">vx1</map>
+      <map key="vy1">vy1</map>
+      <map key="vz1">vz1</map>
+      <map key="vx2">vx2</map>
+      <map key="vy2">vy2</map>
+      <map key="vz2">vz2</map>
+      <map key="vx3">vx3</map>
+      <map key="vy3">vy3</map>
+      <map key="vz3">vz3</map>
+      <map key="vx4">vx4</map>
+      <map key="vy4">vy4</map>
+      <map key="vz4">vz4</map>
+      <map key="speedSyn_1Finish">speedSyn_1Finish</map>
+    </bind>
+    <bind component="speedControl" as="speedControl" x="378.0" y="903.0" width="236.0" height="248.0">
+      <map key="vx1">vx1</map>
+      <map key="vy1">vy1</map>
+      <map key="vz1">vz1</map>
+      <map key="vx3">vx3</map>
+      <map key="vy3">vy3</map>
+      <map key="vz3">vz3</map>
+      <map key="vx2">vx2</map>
+      <map key="vy2">vy2</map>
+      <map key="vz2">vz2</map>
+      <map key="vx4">vx4</map>
+      <map key="vy4">vy4</map>
+      <map key="vz4">vz4</map>
+      <map key="speedControlStart">speedControlStart</map>
+      <map key="speedControlFInish">speedControlFInish</map>
+    </bind>
+  </component>
+</sspaceex>
